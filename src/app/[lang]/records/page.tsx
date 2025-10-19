@@ -4,11 +4,12 @@ import type { StudyRecord, StudyRecordListResponse } from "@/services/study-reco
 import type { UserResponse } from "@/services/users";
 
 type PageProps = {
-  params: { lang: string }
+  params: Promise<{ lang: string }>
 };
 
 export default async function StudyRecordsPage({ params }: PageProps) {
-  const lang = params?.lang || "en";
+  const { lang } = await params;
+  const resolvedLang = lang || "en";
   const base = process.env.NEXT_PUBLIC_API_BASE?.replace(/\/$/, "") || "";
 
   let initialUser: UserResponse["user"] | null = null;
@@ -16,7 +17,7 @@ export default async function StudyRecordsPage({ params }: PageProps) {
   let unauthorized = false;
 
   if (base) {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const cookieHeader = cookieStore.toString();
     try {
       const meRes = await fetch(base + "/users/me", {
@@ -47,7 +48,7 @@ export default async function StudyRecordsPage({ params }: PageProps) {
 
   return (
     <StudyRecordsClient
-      lang={lang}
+      lang={resolvedLang}
       initialUser={initialUser}
       initialRecords={initialRecords}
       initialUnauthorized={unauthorized}
