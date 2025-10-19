@@ -6,7 +6,7 @@ export interface Bookmark {
   messageId: string;
   role: 'user' | 'assistant' | 'system';
   content: string;
-  meta?: Record<string, any>;
+  meta?: Record<string, unknown>;
   savedAt: string;
 }
 
@@ -15,7 +15,7 @@ export interface CreateBookmarkRequest {
   messageId: string;
   role: 'user' | 'assistant' | 'system';
   content: string;
-  meta?: Record<string, any>;
+  meta?: Record<string, unknown>;
 }
 
 export interface BookmarksRequest {

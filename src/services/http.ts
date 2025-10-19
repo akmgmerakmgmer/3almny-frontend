@@ -6,7 +6,7 @@ interface HttpOptions extends RequestInit {
   redirectOn401?: boolean; // allow disabling redirect for certain calls
 }
 
-export async function http<T=any>(path: string, opts: HttpOptions = {}): Promise<T> {
+export async function http<T = unknown>(path: string, opts: HttpOptions = {}): Promise<T> {
   const base = process.env.NEXT_PUBLIC_API_BASE || '';
   if (!base) throw new Error('Missing NEXT_PUBLIC_API_BASE');
   const res = await fetch(base + path, {
@@ -24,11 +24,14 @@ export async function http<T=any>(path: string, opts: HttpOptions = {}): Promise
     }
     throw new Error('UNAUTHORIZED');
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   if (opts.raw) return res as any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let json: any = {};
   try { json = await res.json(); } catch { json = {}; }
   if (!res.ok) {
     const msg = json?.message || `Request failed ${res.status}`;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const err: any = new Error(msg);
     err.status = res.status;
     err.data = json;

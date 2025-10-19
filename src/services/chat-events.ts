@@ -38,10 +38,12 @@ export function emitChatUpdated(payload: ChatUpdatedPayload) {
 }
 
 function addListener<K extends EventKey>(key: K, cb: (payload: Events[K]) => void) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   listeners[key].push(cb as any);
 }
 
 function removeListener<K extends EventKey>(key: K, cb: (payload: Events[K]) => void) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   listeners[key] = listeners[key].filter(fn => fn !== cb) as any;
 }
 
