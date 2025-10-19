@@ -2,8 +2,8 @@ import { NextRequest } from 'next/server'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
-  const id = params.id
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const messageId = req.nextUrl.searchParams.get('messageId') || undefined
   // Proxy to backend preserving cookies for auth
   const backendBase = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.API_BASE_URL || 'http://localhost:4000'
