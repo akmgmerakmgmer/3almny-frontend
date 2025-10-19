@@ -48,7 +48,7 @@ export function Messages({ messages, loading, bottomRef, chatId, onToggleBookmar
                                             : "mr-auto bg-muted max-w-[100%]",
                                     )}
                                 >
-                                    {onToggleBookmark && m.role === "assistant" && m.meta?.articleEligible && (
+                                    {onToggleBookmark && m.role === "assistant" && (m.meta?.articleEligible === true) && (
                                         <div className="flex justify-end pb-1">
                                             <button
                                                 type="button"
@@ -89,7 +89,7 @@ export function Messages({ messages, loading, bottomRef, chatId, onToggleBookmar
                                     >
                                         {m.content}
                                     </p>
-                                    {m.role === 'assistant' && m.meta?.articleEligible && resolvedChatId && (
+                                    {m.role === 'assistant' && (m.meta?.articleEligible === true) && resolvedChatId && (
                                         <div className="pt-3 mt-3 border-t border-border/40 -mx-3 px-3 space-y-4">
                                             <div className="flex justify-end">
                                                 <DownloadPdfBar

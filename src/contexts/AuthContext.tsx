@@ -153,7 +153,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(auth);
         setFullUser(profile);
         setError(null);
-      } catch (e: any) {
+      } catch (e: unknown) {
         if (cancelled) return;
         clearSession();
         const message = e instanceof Error ? e.message : 'Session load failed';

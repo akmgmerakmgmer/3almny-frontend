@@ -52,8 +52,11 @@ export function RouteProgressBar({ height = 3, color = 'hsl(var(--primary))' }: 
     const originalReplace = router.replace;
     const originalBack = router.back;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (router as any).push = (...args: any[]) => { start(); return (originalPush as any)(...args); };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (router as any).replace = (...args: any[]) => { start(); return (originalReplace as any)(...args); };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (router as any).back = (...args: any[]) => { start(); return (originalBack as any)(...args); };
 
     // Heuristic: finish when browser fires 'visibilitychange' back to visible or after network idle guess.
@@ -62,8 +65,11 @@ export function RouteProgressBar({ height = 3, color = 'hsl(var(--primary))' }: 
     window.addEventListener('focus', onComplete);
 
     return () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (router as any).push = originalPush;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (router as any).replace = originalReplace;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (router as any).back = originalBack;
       window.removeEventListener('visibilitychange', onComplete);
       window.removeEventListener('focus', onComplete);

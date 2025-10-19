@@ -36,6 +36,7 @@ export default function DateTimeField({ id, label, value, onChange, disabled, mi
   }, [value]);
 
   const handleFocus = () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (inputRef.current as any)?.showPicker?.();
   };
 

@@ -11,6 +11,7 @@ function hasLocale(pathname: string) {
 export function middleware(request: Request) {
   const url = new URL(request.url);
   const {pathname} = url;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const headers = (request as any).headers;
   const cookieHeader: string = headers?.get?.('cookie') || '';
 

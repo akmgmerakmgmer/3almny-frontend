@@ -73,13 +73,13 @@ export default function BookmarksPage() {
         setError(null);
         setUnauthorized(false);
       })
-      .catch((err: any) => {
+      .catch((err: unknown) => {
         if (cancelled) return;
-        if (err?.message === "UNAUTHORIZED") {
+        if ((err as { message?: string })?.message === "UNAUTHORIZED") {
           setUnauthorized(true);
           return;
         }
-        setError(err?.message || "Failed to load bookmarks");
+        setError((err as { message?: string })?.message || "Failed to load bookmarks");
         setBookmarks([]);
       })
       .finally(() => {
@@ -115,11 +115,11 @@ export default function BookmarksPage() {
     try {
       await deleteBookmark(bookmarkId);
       setReloadToken((token) => token + 1);
-    } catch (err: any) {
-      if (err?.message === "UNAUTHORIZED") {
+    } catch (err: unknown) {
+      if ((err as { message?: string })?.message === "UNAUTHORIZED") {
         setUnauthorized(true);
       } else {
-        setError(err?.message || "Failed to delete bookmark");
+        setError((err as { message?: string })?.message || "Failed to delete bookmark");
       }
     }
   }, []);
@@ -204,10 +204,10 @@ export default function BookmarksPage() {
                             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground/70">
                               {entry.role === "assistant" ? "Assistant" : entry.role === "user" ? "You" : "System"}
                             </p>
-                            {entry.meta?.title && (
+                            {typeof entry.meta?.title === 'string' && (
                               <h2
                                 className="text-base font-semibold text-foreground"
-                                style={containsArabic(entry.meta.title) ? { fontFamily: 'var(--font-arabic-sans)', fontSize: '0.95rem' } : undefined}
+                                style={containsArabic(entry.meta.title as string) ? { fontFamily: 'var(--font-arabic-sans)', fontSize: '0.95rem' } : undefined}
                               >
                                 {entry.meta.title}
                               </h2>

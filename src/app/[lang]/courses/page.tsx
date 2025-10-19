@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import PageWithSidebar from "@/components/layout/PageWithSidebar";
 import { useAuthContext } from "@/contexts/AuthContext";
-import { getSubjects, type Subject as SubjectOption } from "@/components/chat/SubjectSelector";
+import { getSubjects, type Subject as SubjectOption, type EduSystem } from "@/components/chat/SubjectSelector";
 import { CourseRecommendation, getCourseRecommendations } from "@/services/courses";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -63,7 +63,7 @@ export default function CoursesPage() {
 
   const arabicFontStyle = useMemo(() => (isArabic ? { fontFamily: "var(--font-arabic-sans)" } : undefined), [isArabic]);
   const availableSubjects = useMemo<SubjectOption[]>(() => {
-    const system = (fullUser?.educationSystem as any) ?? null;
+    const system = (fullUser?.educationSystem as EduSystem | null) ?? null;
     const grade = fullUser?.grade ?? null;
     const list = getSubjects(system, grade);
     return Array.isArray(list) ? list : [];
@@ -112,8 +112,8 @@ export default function CoursesPage() {
         } else {
           setActiveSearchLabel(isArabic ? "اقتراحات عامة" : "General suggestions");
         }
-      } catch (err: any) {
-        const message = err?.message || (isArabic ? "تعذر جلب الدورات." : "Failed to fetch courses.");
+      } catch (err: unknown) {
+        const message = (err as { message?: string })?.message || (isArabic ? "تعذر جلب الدورات." : "Failed to fetch courses.");
         setError(message);
       } finally {
         if (source === 'subject') {

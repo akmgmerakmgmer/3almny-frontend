@@ -80,8 +80,8 @@ export function ChatCacheProvider({ children }: { children: React.ReactNode }) {
       setLoading(true);
       try {
         await hydrate(targetUserId);
-      } catch (err: any) {
-        setError(err?.message || "Failed to load chats");
+      } catch (err: unknown) {
+        setError((err as { message?: string })?.message || "Failed to load chats");
       } finally {
         setLoading(false);
         initialFetchRef.current = null;
@@ -97,8 +97,8 @@ export function ChatCacheProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
     try {
       await hydrate(user.id);
-    } catch (err: any) {
-      setError(err?.message || "Failed to refresh chats");
+    } catch (err: unknown) {
+      setError((err as { message?: string })?.message || "Failed to refresh chats");
     } finally {
       setLoading(false);
     }
@@ -127,8 +127,8 @@ export function ChatCacheProvider({ children }: { children: React.ReactNode }) {
       setOffset(prev => prev + res.data.length);
       setTotal(res.total);
       setError(null);
-    } catch (err: any) {
-      setError(err?.message || "Failed to load more chats");
+    } catch (err: unknown) {
+      setError((err as { message?: string })?.message || "Failed to load more chats");
     } finally {
       setLoadingMore(false);
     }

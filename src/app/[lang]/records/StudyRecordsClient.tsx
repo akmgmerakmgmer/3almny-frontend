@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import PageWithSidebar from "@/components/layout/PageWithSidebar";
 import { useAuthContext } from "@/contexts/AuthContext";
-import { getSubjects, type Subject as SubjectOption } from "@/components/chat/SubjectSelector";
+import { getSubjects, type Subject as SubjectOption, type EduSystem } from "@/components/chat/SubjectSelector";
 import { educationSystems } from "@/components/chat/EducationSystemSelector";
 import { gradesBySystem } from "@/components/chat/GradeSelector";
 import { Button } from "@/components/ui/button";
@@ -137,7 +137,7 @@ export default function StudyRecordsClient({ lang, initialUser, initialRecords, 
 
   const availableSubjects = useMemo(() => {
     if (!educationSystem || !selectedGrade) return [];
-    return getSubjects(educationSystem as any, selectedGrade);
+    return getSubjects(educationSystem as EduSystem | null, selectedGrade);
   }, [educationSystem, selectedGrade]);
 
   const subjectLookup = useMemo(() => {
@@ -157,7 +157,7 @@ export default function StudyRecordsClient({ lang, initialUser, initialRecords, 
     const map = new Map<string, SubjectOption>();
     if (educationSystem) {
       gradeOptions.forEach(gradeOpt => {
-        const subjects = getSubjects(educationSystem as any, gradeOpt.id);
+        const subjects = getSubjects(educationSystem as EduSystem | null, gradeOpt.id);
         subjects.forEach(subj => {
           if (!map.has(subj.id)) {
             map.set(subj.id, subj);
@@ -177,7 +177,7 @@ export default function StudyRecordsClient({ lang, initialUser, initialRecords, 
       let foundGrade = null;
       if (educationSystem) {
         for (const gradeOpt of gradeOptions) {
-          const gradeSubjects = getSubjects(educationSystem as any, gradeOpt.id);
+          const gradeSubjects = getSubjects(educationSystem as EduSystem | null, gradeOpt.id);
           if (gradeSubjects.some(s => s.id === subjectId)) {
             foundGrade = gradeOpt.id;
             break;
@@ -225,7 +225,7 @@ export default function StudyRecordsClient({ lang, initialUser, initialRecords, 
         processedRecords = processedRecords.filter(record => {
           if (!educationSystem) return true;
           for (const gradeOpt of gradeOptions) {
-            const gradeSubjects = getSubjects(educationSystem as any, gradeOpt.id);
+            const gradeSubjects = getSubjects(educationSystem as EduSystem | null, gradeOpt.id);
             if (gradeSubjects.some(s => s.id === record.subject) && gradeOpt.id === filterGrade) {
               return true;
             }
@@ -246,11 +246,11 @@ export default function StudyRecordsClient({ lang, initialUser, initialRecords, 
       setCurrentPage(page);
       setError(null);
       setUnauthorized(false);
-    } catch (err: any) {
-      if (err?.message === "UNAUTHORIZED") {
+    } catch (err: unknown) {
+      if ((err as { message?: string })?.message === "UNAUTHORIZED") {
         setUnauthorized(true);
       } else {
-        setError(err?.message || "Failed to load study records");
+        setError((err as { message?: string })?.message || "Failed to load study records");
       }
     } finally {
       setLoading(false);
@@ -265,7 +265,7 @@ export default function StudyRecordsClient({ lang, initialUser, initialRecords, 
     try {
       const filtersData = await getRecordFilters();
       setAvailableSubjectsFromRecords(filtersData.subjects || []);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Failed to fetch filters:", err);
     } finally {
       setLoadingFilters(false);
@@ -305,8 +305,8 @@ export default function StudyRecordsClient({ lang, initialUser, initialRecords, 
     setPreferencesError(null);
     try {
       await updatePreferences({ grade: newGrade, subject: "" });
-    } catch (err: any) {
-      setPreferencesError(err?.message || "Failed to update grade preference");
+    } catch (err: unknown) {
+      setPreferencesError((err as { message?: string })?.message || "Failed to update grade preference");
     }
   }, [updatePreferences]);
 
@@ -315,8 +315,8 @@ export default function StudyRecordsClient({ lang, initialUser, initialRecords, 
     setPreferencesError(null);
     try {
       await updatePreferences({ subject: newSubject });
-    } catch (err: any) {
-      setPreferencesError(err?.message || "Failed to update subject preference");
+    } catch (err: unknown) {
+      setPreferencesError((err as { message?: string })?.message || "Failed to update subject preference");
     }
   }, [updatePreferences]);
 
@@ -341,9 +341,9 @@ export default function StudyRecordsClient({ lang, initialUser, initialRecords, 
       setStartedAt(toLocalDateTimeInput(newStartTime));
       setEndedAt(toLocalDateTimeInput(newEndTime));
       setFormError(null);
-    } catch (err: any) {
-      if (err?.message === "UNAUTHORIZED") { setUnauthorized(true); return; }
-      setFormError(err?.message || "Failed to create study record");
+    } catch (err: unknown) {
+      if ((err as { message?: string })?.message === "UNAUTHORIZED") { setUnauthorized(true); return; }
+      setFormError((err as { message?: string })?.message || "Failed to create study record");
     } finally {
       setSubmitting(false);
     }
@@ -388,9 +388,9 @@ export default function StudyRecordsClient({ lang, initialUser, initialRecords, 
       const { record } = await createStudyRecord(payload);
       processCreatedRecord(record, payload.endedAt);
       setFormError(null);
-    } catch (err: any) {
-      if (err?.message === "UNAUTHORIZED") { setUnauthorized(true); }
-      else { setFormError(err?.message || "Failed to save recorded session"); }
+    } catch (err: unknown) {
+      if ((err as { message?: string })?.message === "UNAUTHORIZED") { setUnauthorized(true); }
+      else { setFormError((err as { message?: string })?.message || "Failed to save recorded session"); }
     } finally {
       setSubmitting(false);
       setIsRecording(false);
@@ -408,9 +408,9 @@ export default function StudyRecordsClient({ lang, initialUser, initialRecords, 
       await fetchFilters();
       setError(null);
       setUnauthorized(false);
-    } catch (err: any) {
-      if (err?.message === "UNAUTHORIZED") { setUnauthorized(true); }
-      else { setError(err?.message || "Failed to delete record"); }
+    } catch (err: unknown) {
+      if ((err as { message?: string })?.message === "UNAUTHORIZED") { setUnauthorized(true); }
+      else { setError((err as { message?: string })?.message || "Failed to delete record"); }
     } finally {
       setRemovingIds((prev) => { const next = new Set(prev); next.delete(recordId); return next; });
     }
@@ -503,7 +503,7 @@ export default function StudyRecordsClient({ lang, initialUser, initialRecords, 
                   educationSystemLabel={educationSystemLabel}
                   educationSystemHint={educationSystemHint}
                   selectedGradeDisplay={selectedGradeDisplay}
-                  availableSubjects={availableSubjects as any}
+                  availableSubjects={availableSubjects}
                   subject={subject}
                   onSubjectChange={handleSubjectChange}
                   submitting={submitting}

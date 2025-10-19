@@ -24,7 +24,7 @@ const groupLabels: Record<string, { en: string; ar: string }> = {
   'A-Level': { en: 'A-Level', ar: 'مستوى A المتقدم' }
 }
 
-type EduSystem = 'private_arabic' | 'experimental' | 'azhar' | 'national' | 'international'
+export type EduSystem = 'private_arabic' | 'experimental' | 'azhar' | 'national' | 'international'
 
 function parseGrade(gradeId: string | null | undefined): { phase: 'primary' | 'prep' | 'secondary' | 'intl_lower' | 'intl_igcse' | 'intl_alevel' | null; n?: number } {
   if (!gradeId) return { phase: null }

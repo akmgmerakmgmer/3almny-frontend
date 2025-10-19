@@ -29,10 +29,10 @@ export default function SignUpPage() {
     }
   }, [user, loading, router, lang]);
 
-  const mapError = (err: any): string => {
+  const mapError = (err: unknown): string => {
     if (!err) return t('auth.errors.unknown');
-    const status = err.status as number | undefined;
-    const msg = err.message as string | undefined;
+    const status = (err as { status?: number }).status;
+    const msg = (err as { message?: string }).message;
     if (msg === 'NETWORK_ERROR' || status === 0) return t('auth.errors.network');
     if (msg && /email already in use/i.test(msg)) return t('auth.errors.emailInUse');
     if (status === 409) return t('auth.errors.emailInUse');
@@ -48,7 +48,7 @@ export default function SignUpPage() {
       setSubmitting(true);
       await signup(username, email, password);
       router.push(`/${lang}`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setFormError(mapError(err));
     } finally { setSubmitting(false); }
   };

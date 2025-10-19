@@ -5,8 +5,8 @@ import { cn } from '@/lib/utils';
 import { Loader2, Send, Square, ChevronDown } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { educationSystems } from './EducationSystemSelector';
-import { gradesBySystem } from './GradeSelector';
-import { getSubjects } from './SubjectSelector';
+import { gradesBySystem, type Grade } from './GradeSelector';
+import { getSubjects, type Subject, type EduSystem } from './SubjectSelector';
 
 type Props = {
   input: string
@@ -66,10 +66,10 @@ export default function Composer({
     el.style.height = Math.min(el.scrollHeight, 220) + 'px';
   }, [input]);
 
-  const availableGrades: Array<any> = selectedEducationSystem
-    ? ((gradesBySystem as Record<string, Array<any>>)[selectedEducationSystem] || [])
+  const availableGrades: Grade[] = selectedEducationSystem
+    ? ((gradesBySystem as Record<string, Grade[]>)[selectedEducationSystem] || [])
     : [];
-  const availableSubjects: Array<any> = getSubjects((selectedEducationSystem as any) ?? null, selectedGrade);
+  const availableSubjects: Subject[] = getSubjects((selectedEducationSystem as EduSystem | null) ?? null, selectedGrade);
 
   const selectedSystemData = selectedEducationSystem
     ? educationSystems.find(s => s.id === selectedEducationSystem) || null

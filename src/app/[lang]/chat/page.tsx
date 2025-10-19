@@ -20,7 +20,7 @@ export default function ChatPage() {
   const chatQueryId = search?.get('chat') || undefined;
   // For now we do not preload history; we just pass chatId so new messages persist if existing id.
   // Later we can fetch existing messages and hydrate initialMessages.
-  const [initialMessages, setInitialMessages] = useState<{ id: string; role: 'user' | 'assistant' | 'system'; content: string; meta?: Record<string, any> }[] | null>(null)
+  const [initialMessages, setInitialMessages] = useState<{ id: string; role: 'user' | 'assistant' | 'system'; content: string; meta?: Record<string, unknown> }[] | null>(null)
   const [historyLoading, setHistoryLoading] = useState(false)
   const [sidebarRefreshTick, setSidebarRefreshTick] = useState(0)
   const [localChatId, setLocalChatId] = useState<string | undefined>(chatQueryId)
@@ -42,7 +42,7 @@ export default function ChatPage() {
     getChat(chatQueryId)
       .then(data => {
         if (!active) return
-        const mapped = (data.messages || []).map((m: any) => ({ id: m.id, role: m.role, content: m.content, meta: m.meta }))
+        const mapped = (data.messages || []).map((m: { id: string; role: 'user' | 'assistant' | 'system'; content: string; meta?: Record<string, unknown> }) => ({ id: m.id, role: m.role, content: m.content, meta: m.meta }))
         setInitialMessages(mapped)
         setLocalChatId(data.id)
       })

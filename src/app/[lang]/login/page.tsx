@@ -24,11 +24,11 @@ export default function LoginPage() {
   const [submitting, setSubmitting] = useState(false); // button-only loading
 
 
-  const mapAndSetErrors = (err: any) => {
+  const mapAndSetErrors = (err: unknown) => {
     setEmailError(null); setPasswordError(null); setFormError(null);
     if (!err) { setFormError(t('auth.errors.unknown')); return; }
-    const status = err.status as number | undefined;
-    const msg = err.message as string | undefined;
+    const status = (err as { status?: number }).status;
+    const msg = (err as { message?: string }).message;
     if (msg === 'NETWORK_ERROR' || status === 0) { setFormError(t('auth.errors.network')); return; }
     if (msg === 'EMAIL_NOT_FOUND') { setEmailError(t('auth.errors.emailNotFound')); return; }
     if (msg === 'INCORRECT_PASSWORD') { setPasswordError(t('auth.errors.incorrectPassword')); return; }
@@ -45,7 +45,7 @@ export default function LoginPage() {
       setSubmitting(true);
       await login(email, password);
       router.push(`/${lang}`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       mapAndSetErrors(err);
     } finally {
       setSubmitting(false);
