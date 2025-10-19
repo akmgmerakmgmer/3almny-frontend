@@ -32,7 +32,7 @@ async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<ApiFet
     json = {};
   }
   if (!res.ok) {
-    const record = (json as any) || {};
+    const record = (json as Record<string, unknown>) || {};
     // Nest can return { message: string | string[] }
     let message: string = 'UNKNOWN_ERROR';
     const rawMsg = record.message;

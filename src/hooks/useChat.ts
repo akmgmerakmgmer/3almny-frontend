@@ -9,7 +9,7 @@ export type ChatMessage = {
   id: string
   role: "user" | "assistant" | "system"
   content: string
-  meta?: Record<string, any>
+  meta?: Record<string, unknown>
   bookmarked?: boolean
   bookmarkId?: string
   chatId?: string | null
@@ -110,8 +110,8 @@ export function useChat(options: UseChatOptions = {}) {
         const res = await getBookmarks({ limit: 200 })
         if (!active) return
         setBookmarks(res.bookmarks)
-      } catch (err: any) {
-        if (err?.message === 'UNAUTHORIZED') {
+      } catch (err: unknown) {
+        if ((err as { message?: string })?.message === 'UNAUTHORIZED') {
           setUnauthorized(true)
         } else {
           console.warn('Failed to load bookmarks', err)
@@ -222,10 +222,10 @@ export function useChat(options: UseChatOptions = {}) {
           addMessage(activeChatId, { type: 'text', content: finalAssistant.content, role: 'assistant' })
             .then(saved => {
               // Replace the temporary UUID id with the persisted backend ObjectId so messageId param works for PDF
-              setMessages(prev => prev.map(m => m.id === replyId ? { ...m, id: (saved as any).id, meta: (saved as any).meta, chatId: activeChatId ?? m.chatId ?? null } : m))
-              const eligible = (saved as any)?.meta?.articleEligible;
+              setMessages(prev => prev.map(m => m.id === replyId ? { ...m, id: (saved as { id: string; meta?: Record<string, unknown> }).id, meta: (saved as { id: string; meta?: Record<string, unknown> }).meta, chatId: activeChatId ?? m.chatId ?? null } : m))
+              const eligible = (saved as { meta?: { articleEligible?: boolean } })?.meta?.articleEligible;
               setArticleEligible(typeof eligible === 'boolean' ? eligible : null);
-              upsertChat({ id: activeChatId!, updatedAt: saved.createdAt })
+              upsertChat({ id: activeChatId!, updatedAt: (saved as { createdAt: string }).createdAt })
             })
             .catch(err => console.warn('Persist assistant message failed', err))
         }
@@ -262,7 +262,7 @@ export function useChat(options: UseChatOptions = {}) {
       setStreaming(false)
       abortRef.current = null
     }
-  }, [input, loading, streaming, chatId, persist, onChatCreated])
+  }, [input, loading, streaming, chatId, persist, onChatCreated, controlledChatId, refresh, upsertChat])
 
 // Simple content compressor: trims, collapses whitespace, shortens very long messages
 function compressContent(text: string): string {
@@ -314,8 +314,8 @@ function compressContent(text: string): string {
         setBookmarks(prev => [bookmark, ...prev.filter(b => b.id !== bookmark.id)])
         showBookmarkToast('Saved to bookmarks')
       }
-    } catch (err: any) {
-      if (err?.message === 'UNAUTHORIZED') {
+    } catch (err: unknown) {
+      if ((err as { message?: string })?.message === 'UNAUTHORIZED') {
         setUnauthorized(true)
       } else {
         console.warn('Bookmark toggle failed', err)
@@ -323,7 +323,7 @@ function compressContent(text: string): string {
     } finally {
       setBookmarkSavingIds(prev => prev.filter(id => id !== messageId))
     }
-  }, [chatId, controlledChatId])
+  }, [chatId, controlledChatId, showBookmarkToast])
 
   const stop = useCallback(() => {
     if (abortRef.current) {
