@@ -1,6 +1,8 @@
 // Centralized HTTP helper with 401 redirect logic
 // Ensures any API call that gets a 401 navigates user to login preserving lang.
 
+import { tokenStorage } from '@/lib/token-storage';
+
 interface HttpOptions extends RequestInit {
   raw?: boolean; // if true, skip json parsing and return Response
   redirectOn401?: boolean; // allow disabling redirect for certain calls
@@ -9,12 +11,24 @@ interface HttpOptions extends RequestInit {
 export async function http<T = unknown>(path: string, opts: HttpOptions = {}): Promise<T> {
   const base = process.env.NEXT_PUBLIC_API_BASE || '';
   if (!base) throw new Error('Missing NEXT_PUBLIC_API_BASE');
+  
+  const headers = new Headers(opts.headers);
+  headers.set('Content-Type', 'application/json');
+  
+  // Add JWT token to Authorization header if available
+  const token = tokenStorage.get();
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`);
+  }
+  
   const res = await fetch(base + path, {
     credentials: 'include',
-    headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) },
+    headers,
     ...opts,
   });
   if (res.status === 401 && opts.redirectOn401 !== false && typeof window !== 'undefined') {
+    // Clear invalid token
+    tokenStorage.remove();
     // Derive language from current path (/en/... or /ar/...) fallback en
     const match = window.location.pathname.match(/^\/(en|ar)\b/);
     const lang = match ? match[1] : 'en';
@@ -51,25 +65,3 @@ export async function http<T = unknown>(path: string, opts: HttpOptions = {}): P
 
 export interface ApiSuccess<T> { success?: boolean; data?: T; [k: string]: unknown }
 export interface ApiErrorShape { success?: false; error?: { message?: string; [k: string]: unknown } }
-
-export async function apiFetch<T = unknown>(path: string, init: RequestInit = {}) : Promise<T> {
-  const base = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:4000';
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    ...(init.headers as Record<string, string> | undefined),
-  };
-  const res = await fetch(base + path, {
-    ...init,
-    headers,
-    credentials: 'include',
-  });
-  const text = await res.text();
-  let json: unknown = null;
-  try { json = text ? JSON.parse(text) : null; } catch { /* ignore */ }
-  if (!res.ok) {
-    const maybeErr = json as ApiErrorShape;
-    const message = maybeErr?.error?.message || `Request failed (${res.status})`;
-    throw new Error(message);
-  }
-  return json as T;
-}

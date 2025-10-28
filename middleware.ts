@@ -40,7 +40,8 @@ export function middleware(request: Request) {
   }
 
   // At this point path has /:lang/...; perform auth gating if needed.
-  const hasAuth = /(?:^|;\s*)authp=1(?:;|$)/.test(cookieHeader);
+  // Note: JWT authentication is handled by the http service and client-side,
+  // so we no longer need to check for auth cookies in middleware.
   const chatMatch = pathname.match(/^(?:\/(en|ar))\/chat\/?$/);
   if (chatMatch) {
     // Always redirect legacy /:lang/chat to /:lang now that chat is root page

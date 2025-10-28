@@ -127,6 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setUser(null);
       setFullUser(null);
+      // Note: token is cleared by logout() in auth service
     }
   }, []);
 
