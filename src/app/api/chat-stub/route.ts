@@ -2,9 +2,9 @@ import { NextRequest } from "next/server"
 
 export async function POST(req: NextRequest) {
   try {
-    const cookieHeader = req.headers.get('cookie') || ''
-    const authed = /(?:^|;\s*)authp=1(?:;|$)/.test(cookieHeader)
-    if (!authed) {
+    // Check for JWT token in Authorization header instead of cookies
+    const authHeader = req.headers.get('authorization') || ''
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return new Response('Unauthorized', { status: 401 })
     }
     const { prompt } = await req.json()

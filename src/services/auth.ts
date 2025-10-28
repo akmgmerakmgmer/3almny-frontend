@@ -100,4 +100,9 @@ export async function me(): Promise<AuthUser | null> {
 export async function logout(): Promise<void> {
   tokenStorage.remove();
   await apiFetch<{ success: boolean }>('/auth/logout', { method: 'POST' });
+  // Clear old cookies that might still be present from previous auth system
+  if (typeof document !== 'undefined') {
+    document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+    document.cookie = 'authp=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+  }
 }

@@ -5,18 +5,19 @@ export const dynamic = 'force-dynamic'
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const messageId = req.nextUrl.searchParams.get('messageId') || undefined
-  // Proxy to backend preserving cookies for auth
+  // Proxy to backend with JWT authentication
   const backendBase = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.API_BASE_URL || 'http://localhost:4000'
   const url = new URL(`/chats/${encodeURIComponent(id)}/pdf`, backendBase)
   if (messageId) url.searchParams.set('messageId', messageId)
 
-  const cookie = req.headers.get('cookie') || ''
+  const authHeader = req.headers.get('authorization') || ''
   
   try {
     const res = await fetch(url.toString(), {
       method: 'GET',
       headers: {
-        cookie,
+        'Content-Type': 'application/json',
+        ...(authHeader ? { 'Authorization': authHeader } : {}),
       },
       // We want the raw PDF stream
       cache: 'no-store',

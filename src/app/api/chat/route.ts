@@ -5,10 +5,15 @@ import OpenAI from "openai"
 async function getEducationSystemContext(req: NextRequest): Promise<{ context: string | null; requiresArabic: boolean }> {
   try {
     const backendUrl = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:4000'
+    // Get the Authorization header from the request
+    const authHeader = req.headers.get('authorization') || ''
+    
     const response = await fetch(`${backendUrl}/users/education-context`, {
       headers: {
-        'Cookie': req.headers.get('cookie') || '',
+        'Content-Type': 'application/json',
+        ...(authHeader ? { 'Authorization': authHeader } : {}),
       },
+      cache: 'no-store',
     })
     
     if (!response.ok) return { context: null, requiresArabic: false }
@@ -26,9 +31,9 @@ async function getEducationSystemContext(req: NextRequest): Promise<{ context: s
 
 export async function POST(req: NextRequest) {
   try {
-  const cookieHeader = req.headers.get('cookie') || ''
-  const authed = /(?:^|;\s*)authp=1(?:;|$)/.test(cookieHeader)
-  if (!authed) {
+  // Check for JWT token in Authorization header instead of cookies
+  const authHeader = req.headers.get('authorization') || ''
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return new Response('Unauthorized', { status: 401 })
   }
   const body: unknown = await req.json().catch(() => ({} as object))

@@ -5,6 +5,7 @@ import {locales, type Locale, getDir} from "@/i18n/config";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ChatCacheProvider } from "@/contexts/ChatCacheContext";
 import { AuthGate } from "@/components/auth/AuthGate";
+import { CookieCleanup } from "@/components/CookieCleanup";
 
 const appSans = Source_Sans_3({
   variable: "--font-app-sans",
@@ -49,6 +50,7 @@ export default async function LangLayout({
 
   return (
   <div lang={safeLang} dir={dir} className={`${appSans.variable} ${arabicSans.variable} ${geistMono.variable} antialiased font-sans min-h-dvh flex flex-col`}>
+      <CookieCleanup />
       <AuthProvider>
         <ChatCacheProvider>
           <AuthGate>
