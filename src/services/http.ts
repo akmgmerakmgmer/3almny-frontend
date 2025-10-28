@@ -23,6 +23,7 @@ export async function http<T = unknown>(path: string, opts: HttpOptions = {}): P
   
   const res = await fetch(base + path, {
     credentials: 'include',
+    cache: 'no-store', // Prevent caching to avoid "Provisional headers" warning
     headers,
     ...opts,
   });
