@@ -1,8 +1,15 @@
+import { tokenStorage } from '@/lib/token-storage';
+
 export async function chatPrompt(prompt: string): Promise<{ reply: string }> {
+	const headers = new Headers({ "Content-Type": "application/json" })
+	const token = tokenStorage.get()
+	if (token) headers.set("Authorization", `Bearer ${token}`)
+
 	const res = await fetch("/api/chat", {
 		method: "POST",
-		headers: { "Content-Type": "application/json" },
+		headers,
 		body: JSON.stringify({ prompt }),
+		credentials: "include",
 	})
 	if (!res.ok) {
 		throw new Error("Chat request failed")
@@ -15,11 +22,16 @@ interface ChatStreamPayload { prompt: string; history?: ChatHistoryItem[] }
 
 export async function* chatPromptStream(payload: string | ChatStreamPayload, signal?: AbortSignal): AsyncGenerator<string, void, unknown> {
 	const body: ChatStreamPayload = typeof payload === 'string' ? { prompt: payload } : payload;
+	const headers = new Headers({ "Content-Type": "application/json" })
+	const token = tokenStorage.get()
+	if (token) headers.set("Authorization", `Bearer ${token}`)
+
 	const res = await fetch("/api/chat?stream=1", {
 		method: "POST",
-		headers: { "Content-Type": "application/json" },
+		headers,
 		body: JSON.stringify({ ...body, stream: true }),
 		signal,
+		credentials: "include",
 	})
 	if (res.status === 401) {
 		throw new Error('UNAUTHORIZED')
